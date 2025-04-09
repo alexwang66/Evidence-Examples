@@ -52,7 +52,7 @@ jobs:
           --tag ${REPO_URL}/example-project-app:${{ github.run_number }} \
           --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
           cat build-metadata
-          jf rt build-docker-create shani-docker-dev-virtual --image-file=build-metadata --build-name=${{ vars.BUILD_NAME }} --build-number=${{ github.run_number }}
+          jf rt build-docker-create shani-docker-dev-virtual --image-file=build-metadata --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
 
       - name: Evidence on docker
         run: |
@@ -64,13 +64,13 @@ jobs:
 
       - name: Upload readme file
         run: |
-          jf rt upload ./README.md shani-example-project-generic-dev/readme/${{ github.run_number }}/ --build-name=${{ vars.BUILD_NAME }} --build-number=${{ github.run_number }}
+          jf rt upload ./README.md shani-example-project-generic-dev/readme/${{ github.run_number }}/ --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
           jf evd create --subject-repo-path shani-example-project-generic-dev/readme/${{ github.run_number }}/README.md \
             --key "${{ secrets.PRIVATE_KEY }}" \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
 
       - name: Publish build info
-        run: jfrog rt build-publish ${{ vars.BUILD_NAME }} ${{ github.run_number }}
+        run: jfrog rt build-publish ${{ github.workflow }} ${{ github.run_number }}
 
       - name: Sign build evidence
         run: |
@@ -82,7 +82,7 @@ jobs:
 
       - name: Create release bundle
         run: |
-          echo '{ "files": [ {"build": "'"${{ vars.BUILD_NAME }}${{ github.run_number }}"'" } ] }' > bundle-spec.json
+          echo '{ "files": [ {"build": "'"${{ github.workflow }}/${{ github.run_number }}"'" } ] }' > bundle-spec.json
           jf release-bundle-create ${{ github.actor }}-evidence-example ${{ github.run_number }} --signing-key=${{ secrets.RB_KEY }} --spec bundle-spec.json --sync=true
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ github.actor }}-evidence-example'&bundleToFlash='${{ github.actor }}-evidence-example'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion'
           echo '📦 Release bundle ['${{ github.actor }}-evidence-example:${{ github.run_number }}']('${VER_LINK}') created' >> $GITHUB_STEP_SUMMARY
