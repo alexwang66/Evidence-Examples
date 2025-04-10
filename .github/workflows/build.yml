@@ -55,11 +55,11 @@ jobs:
             -Dsonar.verbose=true \
             -Dsonar.token=$SONAR_TOKEN
           # create evidence from sonar-scan analysis
-          set +e
+          #set +e
           # --FailOnAnalysisFailure causes a failure on gateway-failed sonar analysis 
-          ./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
-          EXIT_CODE=$?
-          set -e          
+          #./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
+          #EXIT_CODE=$?
+          #set -e          
           
           REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://your-sonarqube-instance.com/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
           echo "$REPORT" > sonar_report.txt
