@@ -54,27 +54,10 @@ jobs:
             -Dsonar.java.jdkHome=$JAVA_HOME \
             -Dsonar.verbose=true \
             -Dsonar.token=$SONAR_TOKEN
-      
-          
+       
           REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
           echo "$REPORT" > sonar_report.json
           cat sonar_report.json
-
-          # create evidence from sonar-scan analysis
-          set +e
-          # --FailOnAnalysisFailure causes a failure on gateway-failed sonar analysis 
-          #./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
-          #EXIT_CODE=$?
-          #set -e    
-          
-          # write the exit code to the github output so that it can be used in the evidence creation step
-          #echo "------predicate.json------"
-          #cat predicate.json
-          #echo "------sonar-scan.log------"
-          #cat sonar-scan.log
-          #echo "------EXIT------"
-          #echo "create-sonar-evidence=$EXIT_CODE" 
-          #echo "create-sonar-evidence=$EXIT_CODE" >> $GITHUB_OUTPUT 
 
       - name: Docker Authenticate
         uses: docker/login-action@v3
@@ -117,9 +100,20 @@ jobs:
             --key "${{ secrets.PRIVATE_KEY }}" \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
 
+      - name: Collecting Information from Git
+        run: jf rt build-add-git
+
+      - name: Collecting Environment Variables
+        run: jf rt build-collect-env
+        
       - name: Publish build info
         run: jfrog rt build-publish ${{ github.workflow }} ${{ github.run_number }}
-
+      
+      - name: Build Scan
+        if: always()
+        run: |            
+          jf build-scan --vuln
+        
       - name: Create Sonar evidence
         run: |            
           # Attach evidence onto build using JFrog CLI                
