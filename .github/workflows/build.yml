@@ -60,6 +60,12 @@ jobs:
           ./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
           EXIT_CODE=$?
           set -e          
+          
+          REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://your-sonarqube-instance.com/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
+          echo "$REPORT" > sonar_report.txt
+          echo "::set-output name=report_path::$(pwd)/sonar_report.txt"
+          cat sonar_report.txt
+          
           # write the exit code to the github output so that it can be used in the evidence creation step
           echo "------predicate.json------"
           cat predicate.json
