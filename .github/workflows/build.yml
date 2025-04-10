@@ -54,26 +54,27 @@ jobs:
             -Dsonar.java.jdkHome=$JAVA_HOME \
             -Dsonar.verbose=true \
             -Dsonar.token=$SONAR_TOKEN
-          # create evidence from sonar-scan analysis
-          #set +e
-          # --FailOnAnalysisFailure causes a failure on gateway-failed sonar analysis 
-          #./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
-          #EXIT_CODE=$?
-          #set -e          
+      
           
           REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
           echo "$REPORT" > sonar_report.txt
-          echo "::set-output name=report_path::$(pwd)/sonar_report.txt"
           cat sonar_report.txt
+
+          # create evidence from sonar-scan analysis
+          set +e
+          # --FailOnAnalysisFailure causes a failure on gateway-failed sonar analysis 
+          #./examples/sonar-scan-example/bin/sonar-scan-extractor-linux-amd64  --reportTaskFile=$PWD/.scannerwork/report-task.txt > predicate.json
+          #EXIT_CODE=$?
+          #set -e    
           
           # write the exit code to the github output so that it can be used in the evidence creation step
-          echo "------predicate.json------"
-          cat predicate.json
-          echo "------sonar-scan.log------"
-          cat sonar-scan.log
-          echo "------EXIT------"
-          echo "create-sonar-evidence=$EXIT_CODE" 
-          echo "create-sonar-evidence=$EXIT_CODE" >> $GITHUB_OUTPUT 
+          #echo "------predicate.json------"
+          #cat predicate.json
+          #echo "------sonar-scan.log------"
+          #cat sonar-scan.log
+          #echo "------EXIT------"
+          #echo "create-sonar-evidence=$EXIT_CODE" 
+          #echo "create-sonar-evidence=$EXIT_CODE" >> $GITHUB_OUTPUT 
 
       - name: Docker Authenticate
         uses: docker/login-action@v3
