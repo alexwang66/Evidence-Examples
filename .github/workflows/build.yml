@@ -48,8 +48,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           $PWD/sonar-scanner-6.2.1.4610/bin/sonar-scanner \
-            -Dsonar.projectKey=test-evidence \
-            -Dsonar.organization=my-evidence-test-org \
+            -Dsonar.projectKey=shaniil_Evidence-Examples \
+            -Dsonar.organization=shaniil \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.java.jdkHome=$JAVA_HOME \
             -Dsonar.verbose=true \
