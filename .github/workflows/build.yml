@@ -129,7 +129,7 @@ jobs:
             --predicate ./sonar_report.json \
             --predicate-type https://jfrog.com/evidence/sonar-scan/v1 \
             --key "${{ secrets.PRIVATE_KEY }}" \
-            --key-alias ${{ vars.KEY_ALIAS }}
+            --key-alias ${{ secrets.KEY_ALIAS }}
 
       - name: Sign build evidence
         run: |
