@@ -57,8 +57,8 @@ jobs:
       
           
           REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
-          echo "$REPORT" > sonar_report.txt
-          cat sonar_report.txt
+          echo "$REPORT" > sonar_report.json
+          cat sonar_report.json
 
           # create evidence from sonar-scan analysis
           set +e
@@ -119,6 +119,17 @@ jobs:
 
       - name: Publish build info
         run: jfrog rt build-publish ${{ github.workflow }} ${{ github.run_number }}
+
+      - name: Create Sonar evidence
+        run: |            
+          # Attach evidence onto build using JFrog CLI                
+          jf evd create \
+            --build-name ${{ github.workflow }} \
+            --build-number "${{ github.run_number }}" \
+            --predicate ./sonar_report.json \
+            --predicate-type https://jfrog.com/evidence/sonar-scan/v1 \
+            --key "${{ secrets.PRIVATE_KEY }}" \
+            --key-alias ${{ vars.KEY_ALIAS }}
 
       - name: Sign build evidence
         run: |
