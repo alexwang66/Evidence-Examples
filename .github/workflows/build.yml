@@ -89,7 +89,7 @@ jobs:
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --package-name example-project-app --package-version ${{ github.run_number }} --package-repo-name shani-docker-dev-local \
-            --key "${{ secrets.PRIVATE_KEY }}" \
+            --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
           echo '🔎 Evidence attached: `signature` 🔏 ' 
 
@@ -97,7 +97,7 @@ jobs:
         run: |
           jf rt upload ./README.md shani-example-project-generic-dev/readme/${{ github.run_number }}/ --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
           jf evd create --subject-repo-path shani-example-project-generic-dev/readme/${{ github.run_number }}/README.md \
-            --key "${{ secrets.PRIVATE_KEY }}" \
+            --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
 
       - name: Collecting Information from Git
