@@ -61,7 +61,7 @@ jobs:
           #EXIT_CODE=$?
           #set -e          
           
-          REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://your-sonarqube-instance.com/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
+          REPORT=$(curl -s -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=shaniil_Evidence-Examples")
           echo "$REPORT" > sonar_report.txt
           echo "::set-output name=report_path::$(pwd)/sonar_report.txt"
           cat sonar_report.txt
