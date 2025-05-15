@@ -78,7 +78,7 @@ jobs:
       - name: Build Docker image
         run: |
           URL=$(echo ${{ vars.JF_URL }} | sed 's|^https://||')
-          REPO_URL=${URL}'/alex-docker'
+          REPO_URL=${URL}'alex-docker'
           docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
           --tag ${REPO_URL}/example-project-app:${{ github.run_number }} \
           --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
