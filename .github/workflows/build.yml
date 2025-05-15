@@ -48,8 +48,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           $PWD/sonar-scanner-6.2.1.4610/bin/sonar-scanner \
-            -Dsonar.projectKey=shaniil_Evidence-Examples \
-            -Dsonar.organization=shaniil \
+            -Dsonar.projectKey=Evidence-Examples \
+            -Dsonar.organization=alexwang66 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.java.jdkHome=$JAVA_HOME \
             -Dsonar.verbose=true \
@@ -78,12 +78,12 @@ jobs:
       - name: Build Docker image
         run: |
           URL=$(echo ${{ vars.JF_URL }} | sed 's|^https://||')
-          REPO_URL=${URL}'/shani-docker-dev-virtual'
+          REPO_URL=${URL}'/alex-docker'
           docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
           --tag ${REPO_URL}/example-project-app:${{ github.run_number }} \
           --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
           cat build-metadata
-          jf rt build-docker-create shani-docker-dev-virtual --image-file=build-metadata --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
+          jf rt build-docker-create alex-docker --image-file=build-metadata --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
 
       - name: Evidence on docker
         run: |
@@ -95,7 +95,7 @@ jobs:
 
       - name: Upload readme file
         run: |
-          jf rt upload ./README.md shani-example-project-generic-dev/readme/${{ github.run_number }}/ --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
+          jf rt upload ./README.md alex-generic-local/readme/${{ github.run_number }}/ --build-name=${{ github.workflow }} --build-number=${{ github.run_number }}
           jf evd create --subject-repo-path shani-example-project-generic-dev/readme/${{ github.run_number }}/README.md \
             --key "${{ secrets.PRIVATE_KEY }}" --key-alias ${{ secrets.KEY_ALIAS }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
