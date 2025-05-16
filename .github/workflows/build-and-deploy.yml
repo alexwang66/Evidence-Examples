@@ -49,6 +49,8 @@ jobs:
       - name: Restore private key from base64
         run: |
           echo "${{ secrets.PRIVATE_KEY_BASE64 }}" | base64 -d > private_key.pem
+          ls -l private_key.pem  # 确认文件生成
+          cat private_key.pem | head -n 5  # 只看前5行（别泄露全量）
       - name: Evidence on docker
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
