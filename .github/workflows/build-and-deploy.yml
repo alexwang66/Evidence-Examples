@@ -42,9 +42,9 @@ jobs:
           docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
           --tag ${REPO_URL}/alex-evidence:${{ github.run_number }} \
           --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
-          # jf rt bdc alex-docker --image-file build-metadata --build-name ${{ env.BUILD_NAME }} --build-number ${{ github.run_number }} 
-          jf docker push ${REPO_URL}/alex-evidence:${{ github.run_number }} --build-name='${{ env.BUILD_NAME }}' --build-number='${{ github.run_number }}'
-          jf rt bp ${{ env.BUILD_NAME }} ${{ github.run_number }}
+          # jf rt bdc alex-docker --image-file build-metadata --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} 
+          jf docker push ${REPO_URL}/alex-evidence:${{ github.run_number }} --build-name='${{ vars.BUILD_NAME }}' --build-number='${{ github.run_number }}'
+          jf rt bp ${{ vars.BUILD_NAME }} ${{ github.run_number }}
       - name: Evidence on docker
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
@@ -55,31 +55,31 @@ jobs:
 
       - name: Upload readme file
         run: |
-          jf rt upload ./README.md alex/readme/${{ github.run_number }}/ --build-name ${{ env.BUILD_NAME }} --build-number ${{ github.run_number }}
+          jf rt upload ./README.md alex/readme/${{ github.run_number }}/ --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
           jf evd create --subject-repo-path alex-generic-local/readme/${{ github.run_number }}/README.md \
             --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS  \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
 
       - name: Collecting Information from Git
-        run: jf rt build-add-git ${{ env.BUILD_NAME }} ${{ github.run_number }}
+        run: jf rt build-add-git ${{ vars.BUILD_NAME }} ${{ github.run_number }}
 
       - name: Collecting Environment Variables
-        run: jf rt build-collect-env ${{ env.BUILD_NAME }} ${{ github.run_number }}
+        run: jf rt build-collect-env ${{ vars.BUILD_NAME }} ${{ github.run_number }}
 
       - name: Publish build info
-        run: jfrog rt build-publish ${{ env.BUILD_NAME }} ${{ github.run_number }}
+        run: jfrog rt build-publish ${{ vars.BUILD_NAME }} ${{ github.run_number }}
 
       - name: Sign build evidence
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
-          jf evd create --build-name ${{ env.BUILD_NAME }} --build-number ${{ github.run_number }} \
+          jf evd create --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/build-signature/v1 \
             --key "${{ secrets.PRIVATE_KEY }}"  --key-alias KEY-ALIAS
           echo '🔎 Evidence attached: `build-signature` 🔏 ' >> $GITHUB_STEP_SUMMARY
 
       - name: Create release bundle
         run: |
-          echo '{ "files": [ {"build": "'"${{ env.BUILD_NAME }}/${{ github.run_number }}"'" } ] }' > bundle-spec.json
+          echo '{ "files": [ {"build": "'"${{ vars.BUILD_NAME }}/${{ github.run_number }}"'" } ] }' > bundle-spec.json
           jf release-bundle-create ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} --signing-key PGP-RSA-2048 --spec bundle-spec.json --sync=true
           NAME_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&repositoryKey=release-bundles-v2&activeKanbanTab=promotion'
           VER_LINK=${{ vars.ARTIFACTORY_URL }}'/ui/artifactory/lifecycle/?bundleName='${{ vars.BUNDLE_NAME }}'&bundleToFlash='${{ vars.BUNDLE_NAME }}'&releaseBundleVersion='${{ github.run_number }}'&repositoryKey=release-bundles-v2&activeVersionTab=Version%20Timeline&activeKanbanTab=promotion'
