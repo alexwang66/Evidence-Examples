@@ -48,7 +48,9 @@ jobs:
           jf rt bp ${{ vars.BUILD_NAME }} ${{ github.run_number }}
       - name: Evidence on docker
         run: |
-          echo "${{ secrets.PRIVATE_KEY }}" | base64 -d > private_key.pem
+          cat <<EOF > private_key.pem \
+          ${{ secrets.PRIVATE_KEY }} \
+          EOF
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --package-name alex-evidence --package-version ${{ github.run_number }} --package-repo-name alex-docker \
             --key private_key.pem  --key-alias alex-mac-gpg \
