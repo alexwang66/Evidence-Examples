@@ -48,9 +48,10 @@ jobs:
           jf rt bp ${{ vars.BUILD_NAME }} ${{ github.run_number }}
       - name: Evidence on docker
         run: |
+          echo "${{ secrets.PRIVATE_KEY }}" | base64 -d > private_key.pem
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --package-name alex-evidence --package-version ${{ github.run_number }} --package-repo-name alex-docker \
-            --key "${{ secrets.PRIVATE_KEY }}"  --key-alias KEY-ALIAS \
+            --key private_key.pem  --key-alias alex-mac-gpg \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1 
           echo '🔎 Evidence attached: `signature` 🔏 ' 
 
@@ -58,7 +59,7 @@ jobs:
         run: |
           jf rt upload ./README.md alex/readme/${{ github.run_number }}/ --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }}
           jf evd create --subject-repo-path alex-generic-local/readme/${{ github.run_number }}/README.md \
-            --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS  \
+            --key "${{ secrets.PRIVATE_KEY }}" --key-alias alex-mac-gpg  \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/signature/v1
 
       - name: Collecting Information from Git
@@ -75,7 +76,7 @@ jobs:
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} \
             --predicate ./sign.json --predicate-type https://jfrog.com/evidence/build-signature/v1 \
-            --key "${{ secrets.PRIVATE_KEY }}"  --key-alias KEY-ALIAS
+            --key "${{ secrets.PRIVATE_KEY }}"  --key-alias alex-mac-gpg
           echo '🔎 Evidence attached: `build-signature` 🔏 ' >> $GITHUB_STEP_SUMMARY
 
       - name: Create release bundle
@@ -110,7 +111,7 @@ jobs:
           echo 'Test on Release bundle ['${{ vars.BUNDLE_NAME }}':'${{ github.run_number }}']('${JF_LINK}') success' >> $GITHUB_STEP_SUMMARY
           jf evd create --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ github.run_number }} \
             --predicate ./test_evidence.json --predicate-type https://jfrog.com/evidence/testing-results/v1 \
-            --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS
+            --key "${{ secrets.PRIVATE_KEY }}" --key-alias alex-mac-gpg
           echo '🔎 Evidence attached: integration-test 🧪 ' >> $GITHUB_STEP_SUMMARY
 
 
@@ -149,7 +150,7 @@ jobs:
       - name: Promote to Production
         run: |
           if [ "${{ env.RESULT }}" == "true" ]; then
-            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias KEY-ALIAS \
+            jf evd create --key "${{ secrets.PRIVATE_KEY }}" --key-alias alex-mac-gpg \
               --release-bundle ${{ vars.BUNDLE_NAME }} --release-bundle-version ${{ github.run_number }} \
               --predicate ./policy.json --predicate-type https://jfrog.com/evidence/approval/v1
             jf release-bundle-promote ${{ vars.BUNDLE_NAME }} ${{ github.run_number }} PROD --signing-key PGP-RSA-2048  --sync=true
