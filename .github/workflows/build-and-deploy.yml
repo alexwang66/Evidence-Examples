@@ -39,9 +39,9 @@ jobs:
         run: |
           URL=$(echo ${{ vars.ARTIFACTORY_URL }} | sed 's|^https://||')
           REPO_URL=${URL}'alex-docker'
-          docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
-          --tag ${REPO_URL}/alex-evidence:${{ github.run_number }} \
-          --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
+          # docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
+          # --tag ${REPO_URL}/alex-evidence:${{ github.run_number }} \
+          # --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
           # jf rt bdc alex-docker --image-file build-metadata --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} 
           docker build -t demo.jfrogchina.com/alex-docker/alex-evidence:latest .
           jf docker push demo.jfrogchina.com/alex-docker/alex-evidence:latest --build-name=${{ vars.BUILD_NAME }} --build-number=${{ github.run_number }}
