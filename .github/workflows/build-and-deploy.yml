@@ -42,8 +42,9 @@ jobs:
           docker build --build-arg REPO_URL=${REPO_URL} -f Dockerfile . \
           --tag ${REPO_URL}/alex-evidence:${{ github.run_number }} \
           --output=type=image --platform linux/amd64 --metadata-file=build-metadata --push
-          jf rt bdc alex-docker --image-file build-metadata --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} 
-
+          # jf rt bdc alex-docker --image-file build-metadata --build-name ${{ vars.BUILD_NAME }} --build-number ${{ github.run_number }} 
+          jf docker push ${REPO_URL}/alex-evidence:${{ github.run_number }} --build-name=${{ vars.BUILD_NAME }} --build-number=${{ github.run_number }} 
+          jf rt bp docker-app 1
       - name: Evidence on docker
         run: |
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
