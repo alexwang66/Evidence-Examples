@@ -46,11 +46,13 @@ jobs:
           docker buildx build --load -t demo.jfrogchina.com/alex-docker/alex-evidence:${{ github.run_number }} .
           jf docker push demo.jfrogchina.com/alex-docker/alex-evidence:${{ github.run_number }} --build-name=${{ vars.BUILD_NAME }} --build-number=${{ github.run_number }}
           jf rt bp ${{ vars.BUILD_NAME }} ${{ github.run_number }}
+      - name: Write private key to file
+        run: |
+          cat <<EOF > private_key.pem
+          ${{ secrets.PRIVATE_KEY }}
+          EOF
       - name: Evidence on docker
         run: |
-          cat <<EOF > private_key.pem \
-          ${{ secrets.PRIVATE_KEY }} \
-          EOF
           echo '{ "actor": "${{ github.actor }}", "date": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'" }' > sign.json
           jf evd create --package-name alex-evidence --package-version ${{ github.run_number }} --package-repo-name alex-docker \
             --key private_key.pem  --key-alias alex-mac-gpg \
