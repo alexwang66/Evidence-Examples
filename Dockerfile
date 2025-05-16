@@ -1,7 +1,7 @@
 ARG REPO_URL
 
 # Stage 1: Build the Go application
-FROM golang:1.23.3-alpine AS builder
+FROM demo.jfrogchina.com/alex-docker/golang:1.23.3-alpine AS builder
 
 # Set the working directory
 WORKDIR /app
@@ -19,7 +19,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=${TARGETARCH} go build -o go-server .
 
 # Stage 2: Create the final image
-FROM alpine:latest
+FROM demo.jfrogchina.com/alex-docker/alpine:latest
 
 # Set the working directory
 WORKDIR /app
